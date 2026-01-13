@@ -29,8 +29,8 @@ jobs:
           dotnet tool install --global dotnet-sonarscanner
           echo "$env:USERPROFILE\.dotnet\tools" >> $env:GITHUB_PATH
           dotnet sonarscanner begin `
-            /d:sonar.projectKey="ТУТ_PROJECT_KEY" `
-            /d:sonar.organization="ТУТ_ORG_KEY" `
+            /d:sonar.projectKey="svitlanaena15-cmd_lababa1" `
+            /d:sonar.organization="Тsvitlanaena15-cmd" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.exclusions=**/bin/**,**/obj/**
         shell: pwsh
