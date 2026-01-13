@@ -53,6 +53,20 @@ public partial class MainWindow : Window
             return;
         }
 
+        if (format == "mp3")
+        {
+            codec = "libmp3lame";
+        }
+        else if (format == "ogg")
+        {
+            codec = "libvorbis";
+        }
+        else if (format == "aac")
+        {
+            codec = "aac";
+        }
+
+
         StatusText.Text = "Конвертація триває...";
 
         foreach (var file in selectedFiles)
@@ -73,8 +87,40 @@ public partial class MainWindow : Window
 
             var process = new Process();
             process.StartInfo.FileName = "ffmpeg";
-            process.StartInfo.Arguments =
-                $"-y -i \"{file}\" -c:a {codec} \"{outputFile}\"";
+            var arguments = $"-y -i \"{file}\"";
+
+            // обрізання
+            if (!string.IsNullOrWhiteSpace(StartTimeBox.Text))
+            {
+                arguments += $" -ss {StartTimeBox.Text}";
+            }
+
+            if (!string.IsNullOrWhiteSpace(DurationBox.Text))
+            {
+                arguments += $" -t {DurationBox.Text}";
+            }
+
+// кодек
+            arguments += $" -c:a {codec}";
+
+    // бітрейт
+            var bitrate = (BitrateBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            if (!string.IsNullOrWhiteSpace(bitrate))
+            {
+                arguments += $" -b:a {bitrate}k";
+            }
+
+        // швидкість
+            var speed = (SpeedBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+            if (!string.IsNullOrWhiteSpace(speed) && speed != "1.0")
+            {
+                arguments += $" -filter:a \"atempo={speed}\"";
+            }
+
+            arguments += $" \"{outputFile}\"";
+
+            process.StartInfo.Arguments = arguments;
+
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.CreateNoWindow = true;
 
@@ -99,3 +145,5 @@ public partial class MainWindow : Window
         }
     }
 }
+
+//тест

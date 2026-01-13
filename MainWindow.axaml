@@ -35,6 +35,26 @@
       <ComboBoxItem Content="libvorbis"/>
     </ComboBox>
 
+    <TextBlock Text="Бітрейт (kbps, необовʼязково):"/>
+    <ComboBox Name="BitrateBox">
+      <ComboBoxItem Content="128"/>
+      <ComboBoxItem Content="192"/>
+      <ComboBoxItem Content="256"/>
+      <ComboBoxItem Content="320"/>
+    </ComboBox>
+
+    <TextBlock Text="Обрізання (секунди, необовʼязково):"/>
+    <TextBox Name="StartTimeBox" Watermark="Початок (сек)"/>
+    <TextBox Name="DurationBox" Watermark="Тривалість (сек)"/>
+
+    <TextBlock Text="Швидкість (необовʼязково):"/>
+    <ComboBox Name="SpeedBox">
+      <ComboBoxItem Content="0.5"/>
+      <ComboBoxItem Content="1.0"/>
+      <ComboBoxItem Content="1.5"/>
+      <ComboBoxItem Content="2.0"/>
+    </ComboBox>
+
     <Button Content="Конвертувати"
             Click="OnConvert"/>
 

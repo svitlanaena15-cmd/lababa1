@@ -71,3 +71,4 @@
 /Users/svetlanaena/labora1/labora1/obj/Debug/net9.0/labora1.pdb
 /Users/svetlanaena/labora1/labora1/obj/Debug/net9.0/labora1.genruntimeconfig.cache
 /Users/svetlanaena/labora1/labora1/obj/Debug/net9.0/ref/labora1.dll
+/Users/svetlanaena/labora1/labora1/obj/Debug/net9.0/labora1.sourcelink.json
