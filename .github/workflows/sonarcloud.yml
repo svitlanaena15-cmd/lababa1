@@ -36,10 +36,10 @@ jobs:
         shell: pwsh
 
       - name: Restore
-        run: dotnet restore
+        run: dotnet restore labora1.sln
 
       - name: Build
-        run: dotnet build -c Release --no-restore
+        run: dotnet build labora1.sln -c Release --no-restore
 
       - name: SonarScanner End
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
