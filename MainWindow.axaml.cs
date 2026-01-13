@@ -8,11 +8,9 @@ namespace labora1;
 
 public partial class MainWindow : Window
 {
-    // список вибраних файлів
-    private List<string> selectedFiles = new();
+    private List<string> selectedFiles = new(); // список вибраних файлів
 
-    // папка для збереження результатів
-    private string? outputFolder = null;
+    private string? outputFolder = null; // папка для збереження результатів(можна буде вибирати)
 
 
     public MainWindow()
@@ -37,7 +35,7 @@ public partial class MainWindow : Window
         }
     }
 
-    // запуск конвертації
+    //запуск конвертації!!!!
     private void OnConvert(object? sender, RoutedEventArgs e)
     {
         if (selectedFiles.Count == 0)
@@ -68,7 +66,7 @@ public partial class MainWindow : Window
             }
             else
             {
-    // якщо папку не вибрали — зберігаємо поруч з оригіналом
+    // якщо папку не вибрати то буде збережено файли біля оригіналу
              outputFile = Path.ChangeExtension(file, format);
             }
 
@@ -87,7 +85,7 @@ public partial class MainWindow : Window
         StatusText.Text = "Конвертація завершена";
     }
 
-// вибір папки для збереження файлів
+// вибір папки для збереження файлів!!!
     private async void OnSelectOutputFolder(object? sender, RoutedEventArgs e)
     {
        var dialog = new OpenFolderDialog();
