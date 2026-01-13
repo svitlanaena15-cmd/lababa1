@@ -1,0 +1,46 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="labora1.MainWindow"
+        Width="500" Height="400"
+        Title="Аудіо конвертер (FFmpeg)">
+
+  <StackPanel Margin="10" Spacing="8">
+
+    <Button Content="Вибрати аудіофайли"
+            Click="OnSelectFiles"/>
+
+    <TextBlock Name="FilesInfo"
+               Text="Файли не вибрані"/>
+
+    <Button Content="Вибрати папку для збереження"
+            Click="OnSelectOutputFolder"/>
+
+    <TextBlock Name="OutputFolderText"
+               Text="Папка не вибрана"/>
+
+
+    <TextBlock Text="Вихідний формат:"/>
+    <ComboBox Name="FormatBox">
+      <ComboBoxItem Content="mp3"/>
+      <ComboBoxItem Content="wav"/>
+      <ComboBoxItem Content="ogg"/>
+      <ComboBoxItem Content="flac"/>
+      <ComboBoxItem Content="aac"/>
+    </ComboBox>
+
+    <TextBlock Text="Кодек:"/>
+    <ComboBox Name="CodecBox">
+      <ComboBoxItem Content="libmp3lame"/>
+      <ComboBoxItem Content="aac"/>
+      <ComboBoxItem Content="libvorbis"/>
+    </ComboBox>
+
+    <Button Content="Конвертувати"
+            Click="OnConvert"/>
+
+    <TextBlock Name="StatusText"
+               Text="Очікування..."
+               Margin="0,10,0,0"/>
+
+  </StackPanel>
+</Window>
