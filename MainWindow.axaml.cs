@@ -35,97 +35,111 @@ public partial class MainWindow : Window
         }
     }
 
-    //запуск конвертації!!!!
-    private void OnConvert(object? sender, RoutedEventArgs e)
+//ДОПОМІЖНІ ФУНКЦІЇ ДЛЯ КОНВЕрТАЦІЇ
+    private bool AreFilesSelected()
     {
         if (selectedFiles.Count == 0)
         {
             StatusText.Text = "Файли не вибрані";
-            return;
+            return false;
         }
+        return true;
+    }
 
-        var format = (FormatBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
-        var codec = (CodecBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+    private bool TryGetFormatAndCodec(out string format, out string codec)
+    {
+        format = (FormatBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty;
+        codec = (CodecBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty;
 
         if (format == null || codec == null)
         {
             StatusText.Text = "Оберіть формат і кодек";
-            return;
+            return false;
         }
 
+        codec = GetCodecByFormat(format);
+        return true;
+    }
+
+    private static string GetCodecByFormat(string format)
+    {
         if (format == "mp3")
+            return "libmp3lame";
+        if (format == "ogg")
+            return "libvorbis";
+        if (format == "aac")
+            return "aac";
+
+        return format;
+    }
+
+    private string GetOutputFilePath(string inputFile, string format)
+    {
+        if (outputFolder != null)
         {
-            codec = "libmp3lame";
-        }
-        else if (format == "ogg")
-        {
-            codec = "libvorbis";
-        }
-        else if (format == "aac")
-        {
-            codec = "aac";
+            var fileName = Path.GetFileNameWithoutExtension(inputFile);
+            return Path.Combine(outputFolder, $"{fileName}.{format}");
         }
 
+        return Path.ChangeExtension(inputFile, format);
+    }
+
+    private string BuildFfmpegArguments(string inputFile, string outputFile, string codec)
+    {
+        var arguments = $"-y -i \"{inputFile}\"";
+
+        if (!string.IsNullOrWhiteSpace(StartTimeBox.Text))
+            arguments += $" -ss {StartTimeBox.Text}";
+
+        if (!string.IsNullOrWhiteSpace(DurationBox.Text))
+            arguments += $" -t {DurationBox.Text}";
+
+        arguments += $" -c:a {codec}";
+
+        var bitrate = (BitrateBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+        if (!string.IsNullOrWhiteSpace(bitrate))
+            arguments += $" -b:a {bitrate}k";
+
+        var speed = (SpeedBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+        if (!string.IsNullOrWhiteSpace(speed) && speed != "1.0")
+            arguments += $" -filter:a \"atempo={speed}\"";
+
+        arguments += $" \"{outputFile}\"";
+
+        return arguments;
+    }   
+
+    private static void RunFfmpeg(string arguments)
+    {
+        var process = new Process();
+
+        process.StartInfo.FileName = "ffmpeg";
+        process.StartInfo.Arguments = arguments;
+        process.StartInfo.UseShellExecute = false;
+        process.StartInfo.CreateNoWindow = true;
+
+        process.Start();
+        process.WaitForExit();
+    }
+
+
+    //запуск конвертації!!!!
+    private void OnConvert(object? sender, RoutedEventArgs e)
+    {
+        if (!AreFilesSelected())
+            return;
+
+        if (!TryGetFormatAndCodec(out var format, out var codec))
+            return;
 
         StatusText.Text = "Конвертація триває...";
 
         foreach (var file in selectedFiles)
         {
-            string outputFile;
+            var outputFile = GetOutputFilePath(file, format);
+            var arguments = BuildFfmpegArguments(file, outputFile, codec);
 
-            if (outputFolder != null)
-            {
-                var fileName = Path.GetFileNameWithoutExtension(file);
-                outputFile = Path.Combine(outputFolder, $"{fileName}.{format}");
-            }
-            else
-            {
-    // якщо папку не вибрати то буде збережено файли біля оригіналу
-             outputFile = Path.ChangeExtension(file, format);
-            }
-
-
-            var process = new Process();
-            process.StartInfo.FileName = "ffmpeg";
-            var arguments = $"-y -i \"{file}\"";
-
-            // обрізання
-            if (!string.IsNullOrWhiteSpace(StartTimeBox.Text))
-            {
-                arguments += $" -ss {StartTimeBox.Text}";
-            }
-
-            if (!string.IsNullOrWhiteSpace(DurationBox.Text))
-            {
-                arguments += $" -t {DurationBox.Text}";
-            }
-
-// кодек
-            arguments += $" -c:a {codec}";
-
-    // бітрейт
-            var bitrate = (BitrateBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            if (!string.IsNullOrWhiteSpace(bitrate))
-            {
-                arguments += $" -b:a {bitrate}k";
-            }
-
-        // швидкість
-            var speed = (SpeedBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
-            if (!string.IsNullOrWhiteSpace(speed) && speed != "1.0")
-            {
-                arguments += $" -filter:a \"atempo={speed}\"";
-            }
-
-            arguments += $" \"{outputFile}\"";
-
-            process.StartInfo.Arguments = arguments;
-
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.CreateNoWindow = true;
-
-            process.Start();
-            process.WaitForExit();
+            RunFfmpeg(arguments);
         }
 
         StatusText.Text = "Конвертація завершена";
