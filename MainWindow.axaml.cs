@@ -48,8 +48,8 @@ public partial class MainWindow : Window
 
     private bool TryGetFormatAndCodec(out string format, out string codec)
     {
-        format = (FormatBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
-        codec = (CodecBox.SelectedItem as ComboBoxItem)?.Content?.ToString();
+        format = (FormatBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty;
+        codec = (CodecBox.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? string.Empty;
 
         if (format == null || codec == null)
         {
@@ -61,7 +61,7 @@ public partial class MainWindow : Window
         return true;
     }
 
-    private string GetCodecByFormat(string format)
+    private static string GetCodecByFormat(string format)
     {
         if (format == "mp3")
             return "libmp3lame";
@@ -109,7 +109,7 @@ public partial class MainWindow : Window
         return arguments;
     }   
 
-    private void RunFfmpeg(string arguments)
+    private static void RunFfmpeg(string arguments)
     {
         var process = new Process();
 
