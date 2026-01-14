@@ -32,7 +32,9 @@ jobs:
             /k:"svitlanaena15-cmd_lababa1" `
             /o:"svitlanaena15-cmd" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.exclusions="**/bin/**,**/obj/**"
+            /d:sonar.exclusions="**/bin/**,**/obj/**" `
+            /d:sonar.coverage.exclusions="**/*.axaml.cs"
+
         shell: pwsh
 
       - name: Restore
