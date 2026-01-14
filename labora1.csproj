@@ -18,4 +18,8 @@
       <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="NetSdrClientAppTests/**/*.cs" />
+  </ItemGroup>
 </Project>
