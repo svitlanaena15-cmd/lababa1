@@ -33,8 +33,8 @@ jobs:
             /o:"svitlanaena15-cmd" `
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.exclusions="**/bin/**,**/obj/**" `
-            /d:sonar.coverage.exclusions="**/*.axaml.cs"
-
+            /d:sonar.coverage.exclusions="**/*.axaml.cs" `
+            /d:sonar.cs.opencover.reportsPaths="NetSdrClientAppTests/TestResults/coverage.xml"
         shell: pwsh
 
       - name: Restore
