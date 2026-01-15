@@ -51,7 +51,6 @@ jobs:
             /p:CoverletOutputFormat=opencover
         shell: pwsh
 
-
       - name: SonarScanner End
         run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         shell: pwsh
