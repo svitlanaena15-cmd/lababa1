@@ -1,6 +1,7 @@
 ﻿using System;
 using Xunit;
 using labora1;
+using System.IO;
 
 namespace NetSdrClientAppTests
 {
