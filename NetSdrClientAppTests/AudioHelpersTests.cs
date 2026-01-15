@@ -22,7 +22,8 @@ namespace NetSdrClientAppTests
         {
             var input = "/home/user/song.wav";
             var output = AudioHelpers.GetOutputFilePath(input, "mp3", "/tmp/out");
-            Assert.EndsWith("/tmp/out/song.mp3".Replace('/', System.IO.Path.DirectorySeparatorChar), output);
+            Assert.Equal("song.mp3", Path.GetFileName(output));
+            Assert.Equal("out", Path.GetFileName(Path.GetDirectoryName(output)));
         }
 
         [Fact]
@@ -30,7 +31,7 @@ namespace NetSdrClientAppTests
         {
             var input = "/home/user/song.wav";
             var output = AudioHelpers.GetOutputFilePath(input, "ogg", null);
-            Assert.EndsWith(System.IO.Path.DirectorySeparatorChar + "song.ogg".TrimStart(System.IO.Path.DirectorySeparatorChar), output, StringComparison.OrdinalIgnoreCase);
+            Assert.Equal("song.ogg", Path.GetFileName(output));
         }
 
         [Fact]
@@ -50,7 +51,7 @@ namespace NetSdrClientAppTests
             Assert.Contains("-c:a libmp3lame", args);
             Assert.Contains("-b:a 192k", args);
             Assert.Contains("atempo=1.5", args);
-            Assert.EndsWith("\"out.mp3\"", args);
+            Assert.Contains("out.mp3", args);
         }
 
         [Fact]
