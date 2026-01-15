@@ -1,10 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using labora1.Infrastructure;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace labora1;
+namespace labora1.UI;
 
 public partial class MainWindow : Window
 {
@@ -16,6 +17,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
+        var svc = new ExampleService(); //для демонстрації поломки залежностей
+        var info = svc.GetInfo();
     }
 
     // вибір аудіофайлів
