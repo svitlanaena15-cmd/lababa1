@@ -136,5 +136,47 @@ namespace NetSdrClientAppTests
             Assert.True(t.IsCompleted || t.IsCanceled || t.IsFaulted);
         }
 
+        [Fact]
+        public async Task StartAsync_CatchesSocketExceptionOnStop()
+        {
+            var server = new EchoServer(0);
+
+            var t = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            // Инициируем Stop, чтобы вызвать SocketException внутри StartAsync
+            server.Stop();
+            await Task.Delay(50);
+
+            Assert.True(t.IsCompleted);
+        }
+
+        [Fact]
+        public async Task StartAsync_CatchesObjectDisposedExceptionOnStop()
+        {
+            var server = new EchoServer(0);
+
+            server.Dispose(); // Dispose сразу
+            await Task.Delay(10);
+
+            await Assert.ThrowsAsync<ObjectDisposedException>(async () =>
+            {
+                // Попытка AcceptTcpClientAsync на уже закрытом listener
+                await server.StartAsync();
+            });
+        }
+
+        [Fact]
+        public async Task StartAsync_AlreadyCancelled_ExitsImmediately()
+        {
+            var server = new EchoServer(0);
+            server.Stop(); // cts.Cancel()
+
+            var t = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            Assert.True(t.IsCompleted);
+        }
+
     }
 }
