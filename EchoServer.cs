@@ -21,6 +21,8 @@ namespace labora1
 
         public async Task StartAsync()
         {
+            if (disposed) return;
+            
             listener = new TcpListener(IPAddress.Loopback, port);
             listener.Start();
 
