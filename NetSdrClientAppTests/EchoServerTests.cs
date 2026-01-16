@@ -1,6 +1,10 @@
+using System;
 using System.Threading.Tasks;
 using Xunit;
 using labora1;
+using System.Net.Sockets;
+using System.Text;
+using System.Net;
 
 namespace NetSdrClientAppTests
 {
@@ -26,6 +30,177 @@ namespace NetSdrClientAppTests
             var response = await server.ProcessMessageAsync(msg);
 
             Assert.Equal(msg, response);
+        }
+
+        [Fact]
+        public void Stop_ShouldNotThrow()
+        {
+            var server = new EchoServer(0);
+
+            var exception = Record.Exception(() => server.Stop());
+
+            Assert.Null(exception);
+        }
+
+        [Fact]
+        public async Task StartAsync_ShouldEchoMessageBack()
+        {
+            int port = 9105;
+            var server = new EchoServer(port);
+
+            var serverTask = Task.Run(() => server.StartAsync());
+            await Task.Delay(150);
+
+            using var client = new TcpClient();
+            await client.ConnectAsync("127.0.0.1", port);
+
+            using var stream = client.GetStream();
+            string message = "Echo Test";
+
+            byte[] data = Encoding.UTF8.GetBytes(message);
+            await stream.WriteAsync(data, 0, data.Length);
+
+            byte[] buffer = new byte[1024];
+            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+            string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+            Assert.Equal(message, response);
+
+            server.Stop();
+            server.Dispose();
+        }
+
+        [Fact]
+        public async Task StartAsync_Stop_ShouldExitGracefully()
+        {
+            var server = new EchoServer(0);
+
+            var task = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            server.Stop();
+            await Task.Delay(50);
+
+            Assert.True(task.IsCompleted);
+        }
+
+        [Fact]
+        public async Task HandleClientAsync_DirectInvocation_EchoesMessage()
+        {
+            // Arrange
+            var server = new EchoServer(0); // порт тут не використовуємо
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+
+            var client = new TcpClient();
+            var clientConnectTask = client.ConnectAsync("127.0.0.1", port);
+
+            var acceptedTask = listener.AcceptTcpClientAsync();
+            await clientConnectTask;
+            using var accepted = await acceptedTask;
+
+            using var clientStream = client.GetStream();
+
+            string message = "Direct Handle Test";
+            byte[] outBytes = Encoding.UTF8.GetBytes(message);
+            await clientStream.WriteAsync(outBytes, 0, outBytes.Length);
+
+            await server.HandleClientAsync(accepted);
+
+            byte[] buffer = new byte[1024];
+            int bytesRead = await clientStream.ReadAsync(buffer, 0, buffer.Length);
+            string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+            Assert.Equal(message, response);
+
+            client.Close();
+            listener.Stop();
+            server.Dispose();
+        }
+
+        [Fact]
+        public async Task StartAsync_Dispose_ShouldComplete()
+        {
+            var server = new EchoServer(0);
+            var t = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            server.Dispose();
+            await Task.Delay(50);
+
+            Assert.True(t.IsCompleted || t.IsCanceled || t.IsFaulted);
+        }
+
+        [Fact]
+        public async Task StartAsync_CatchesSocketExceptionOnStop()
+        {
+            var server = new EchoServer(0);
+
+            var t = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            server.Stop();
+            await Task.Delay(50);
+
+            Assert.True(t.IsCompleted);
+        }
+
+        [Fact]
+        public async Task StartAsync_DisposedBeforeStart_CompletesGracefully()
+        {
+            var server = new EchoServer(0);
+            server.Dispose(); 
+
+            var t = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            Assert.True(t.IsCompleted || t.IsCanceled || t.IsFaulted);
+        }
+
+        [Fact]
+        public async Task StartAsync_AlreadyCancelled_ExitsImmediately()
+        {
+            var server = new EchoServer(0);
+            server.Stop();
+
+            var t = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            Assert.True(t.IsCompleted);
+        }
+
+        [Fact]
+        public async Task HandleClientAsync_ClientClosesWithoutSending_DoesNotThrow()
+        {
+            var server = new EchoServer(0);
+
+            var listener = new TcpListener(IPAddress.Loopback, 0);
+            listener.Start();
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+
+            using var client = new TcpClient();
+            await client.ConnectAsync("127.0.0.1", port);
+
+            using var accepted = await listener.AcceptTcpClientAsync();
+
+            client.Close();
+
+            var ex = await Record.ExceptionAsync(async () => await server.HandleClientAsync(accepted));
+            Assert.Null(ex);
+
+            listener.Stop();
+            server.Dispose();
+        }
+
+
+        [Fact]
+        public void Dispose_MultipleCalls_DoNotThrow()
+        {
+            var server = new EchoServer(0);
+            server.Dispose(); 
+            var ex = Record.Exception(() => server.Dispose());
+            Assert.Null(ex);
         }
     }
 }

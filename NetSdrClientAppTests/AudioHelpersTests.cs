@@ -64,5 +64,45 @@ namespace NetSdrClientAppTests
             Assert.DoesNotContain("-b:a", args);
             Assert.DoesNotContain("atempo", args);
         }
+
+        [Fact]
+        public void GetCodecByFormat_UnknownFormat_ReturnsSameFormat()
+        {
+            var result = AudioHelpers.GetCodecByFormat("flac");
+            Assert.Equal("flac", result);
+        }
+
+        [Fact]
+        public void BuildFfmpegArguments_NoBitrate_NoSpeed()
+        {
+            var args = AudioHelpers.BuildFfmpegArguments(
+                "in.wav",
+                "out.wav",
+                "wav",
+                startTime: null,
+                duration: null,
+                bitrate: null,
+                speed: "1.0"
+            );
+
+            Assert.DoesNotContain("-b:a", args);
+            Assert.DoesNotContain("atempo=", args);
+        }
+
+        [Fact]
+        public void Program_Main_EntryPoint()
+        {
+            var programType = typeof(labora1.UI.Program);
+            Assert.NotNull(programType);
+            
+            var method = programType.GetMethod("Main", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(method);
+            
+            var buildMethod = programType.GetMethod("BuildAvaloniaApp", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(buildMethod);
+        }
+
     }
 }

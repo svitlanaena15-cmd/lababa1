@@ -22,4 +22,9 @@
   <ItemGroup>
     <Compile Remove="NetSdrClientAppTests/**/*.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetSdrClientAppTests" />
+  </ItemGroup>
+
 </Project>
