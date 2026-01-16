@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Xunit;
 using labora1;
-using TcpClient;
-using Encoding;
+using System.Net.Sockets;
+using System.Text;
 
 namespace NetSdrClientAppTests
 {
@@ -47,7 +47,7 @@ namespace NetSdrClientAppTests
             var server = new EchoServer(port);
 
             var serverTask = Task.Run(() => server.StartAsync());
-            await Task.Delay(150); // дати серверу запуститись
+            await Task.Delay(150);
 
             using var client = new TcpClient();
             await client.ConnectAsync("127.0.0.1", port);

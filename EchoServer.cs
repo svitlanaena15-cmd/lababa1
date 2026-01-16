@@ -12,6 +12,7 @@ namespace labora1
         private readonly int port;
         private TcpListener? listener;
         private readonly CancellationTokenSource cts = new();
+        private bool disposed;
 
         public EchoServer(int port)
         {
@@ -27,18 +28,20 @@ namespace labora1
             {
                 while (!cts.IsCancellationRequested)
                 {
-                    var client = await listener.AcceptTcpClientAsync(cts.Token);
+                    var client = await listener.AcceptTcpClientAsync();
                     _ = HandleClientAsync(client);
                 }
             }
-            catch (OperationCanceledException)
-            {
-                // нормальне завершення
-            }
             catch (SocketException)
             {
+                if (!cts.IsCancellationRequested)
+                    throw;
             }
-
+            catch (ObjectDisposedException)
+            {
+                if (!cts.IsCancellationRequested)
+                    throw;
+            }
         }
 
         public void Stop()
@@ -49,10 +52,11 @@ namespace labora1
 
         public async Task<string> ProcessMessageAsync(string message)
         {
-            await Task.Delay(1); //імітація асинхронності :))
+            await Task.Delay(1); // імітація асинхронної роботи
             return message;
         }
 
+        // зробимо internal, щоб тести могли викликати його напряму (опціонально)
         internal async Task HandleClientAsync(TcpClient client)
         {
             using var stream = client.GetStream();
@@ -69,11 +73,30 @@ namespace labora1
             client.Close();
         }
 
+        // Dispose pattern
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed) return;
+
+            if (disposing)
+            {
+                cts.Dispose();
+                try
+                {
+                    listener?.Stop();
+                }
+                catch
+                {
+                }
+            }
+
+            disposed = true;
+        }
+
         public void Dispose()
         {
-            cts.Dispose();
-            listener?.Stop();
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
-//тест
