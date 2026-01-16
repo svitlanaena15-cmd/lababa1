@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace labora1
 {
-    public class EchoServer
+    public class EchoServer : IDisposable
     {
         private readonly int port;
         private TcpListener? listener;
-        private readonly CancellationTokenSource cts = new(); //
+        private readonly CancellationTokenSource cts = new();
 
         public EchoServer(int port)
         {
@@ -33,6 +33,7 @@ namespace labora1
             }
             catch (SocketException)
             {
+
             }
         }
 
@@ -44,11 +45,10 @@ namespace labora1
 
         public async Task<string> ProcessMessageAsync(string message)
         {
-            await Task.Delay(1); // імітація асинхронної роботи :))
+            await Task.Delay(1); //імітація асинхронності :))
             return message;
         }
 
-        // обробка TCP клієнта
         private async Task HandleClientAsync(TcpClient client)
         {
             using var stream = client.GetStream();
@@ -63,6 +63,12 @@ namespace labora1
             await stream.WriteAsync(responseBytes, 0, responseBytes.Length);
 
             client.Close();
+        }
+
+        public void Dispose()
+        {
+            cts.Dispose();
+            listener?.Stop();
         }
     }
 }
