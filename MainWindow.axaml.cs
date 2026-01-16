@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace labora1;
+namespace labora1.UI;
 
 public partial class MainWindow : Window
 {

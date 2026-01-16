@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using System;
 
-namespace labora1;
+namespace labora1.UI;
 
 class Program
 {

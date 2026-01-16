@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace labora1
+namespace labora1.UI
 {
     public static class AudioHelpers //дозволяє писати тести без запуску Авалонії
     {
