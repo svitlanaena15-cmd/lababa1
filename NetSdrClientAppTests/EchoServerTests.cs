@@ -3,6 +3,7 @@ using Xunit;
 using labora1;
 using System.Net.Sockets;
 using System.Text;
+using System.Net;
 
 namespace NetSdrClientAppTests
 {
