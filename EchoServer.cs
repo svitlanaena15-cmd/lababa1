@@ -27,14 +27,18 @@ namespace labora1
             {
                 while (!cts.IsCancellationRequested)
                 {
-                    var client = await listener.AcceptTcpClientAsync();
+                    var client = await listener.AcceptTcpClientAsync(cts.Token);
                     _ = HandleClientAsync(client);
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // нормальне завершення
+            }
             catch (SocketException)
             {
-
             }
+
         }
 
         public void Stop()
@@ -49,7 +53,7 @@ namespace labora1
             return message;
         }
 
-        private async Task HandleClientAsync(TcpClient client)
+        internal async Task HandleClientAsync(TcpClient client)
         {
             using var stream = client.GetStream();
 

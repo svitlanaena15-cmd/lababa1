@@ -68,5 +68,20 @@ namespace NetSdrClientAppTests
             server.Dispose();
         }
 
+        [Fact]
+        public async Task StartAsync_Stop_ShouldExitGracefully()
+        {
+            var server = new EchoServer(0);
+
+            var task = Task.Run(() => server.StartAsync());
+            await Task.Delay(50);
+
+            server.Stop();
+            await Task.Delay(50);
+
+            Assert.True(task.IsCompleted);
+        }
+
+
     }
 }
