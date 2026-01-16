@@ -89,5 +89,20 @@ namespace NetSdrClientAppTests
             Assert.DoesNotContain("atempo=", args);
         }
 
+        [Fact]
+        public void Program_Main_EntryPoint()
+        {
+            var programType = typeof(labora1.UI.Program);
+            Assert.NotNull(programType);
+            
+            var method = programType.GetMethod("Main", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(method);
+            
+            var buildMethod = programType.GetMethod("BuildAvaloniaApp", 
+                System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+            Assert.NotNull(buildMethod);
+        }
+
     }
 }
